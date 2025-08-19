@@ -15,7 +15,7 @@ openai.api_key = os.getenv("OPENAI_API_KEY")
 # --- App UI ---
 st.set_page_config(page_title="AI Patient-Friendly Note Translator", layout="wide")
 st.title("🩺 AI Healthcare Translator")
-st.markdown("This tool helps Korean doctors communicate with foreign patients in patient-friendly English. \n 왼쪽 상단 >>을 클릭하세요.")
+st.markdown("외국인 환자들과 소통하는 데에 도움을 주는 도구. \n\n 1. 왼쪽 상단 >> 을 클릭하세요. \n 2. 리포트 생성하기를 클릭하세요.")
 
 # --- Author & Data Credit ---
 st.markdown("""
@@ -63,11 +63,11 @@ def sanitize_text(text):
     )
 
 # --- Button Action ---
-if st.button("Generate Patient-Friendly Report 🩺"):
+if st.button("리포트 생성하기 🩺"):
     if not doctor_note_text.strip():
-        st.error("Please enter a doctor's note first.")
+        st.error("Doctor's note 를 먼저 기입해주세요.")
     else:
-        with st.spinner("Generating patient-friendly report... ⏳"):
+        with st.spinner("생성중... ⏳"):
             try:
                 # --- AI Prompts ---
                 translation_prompt = f"""Based on the following Korean doctor's note, provide a short, clear patient-friendly English for the foreign patient.
