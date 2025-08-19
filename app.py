@@ -15,7 +15,7 @@ openai.api_key = os.getenv("OPENAI_API_KEY")
 # --- App UI ---
 st.set_page_config(page_title="AI Patient-Friendly Note Translator", layout="wide")
 st.title("🩺 AI Healthcare Translator")
-st.markdown("This tool helps Korean doctors communicate with foreign patients in patient-friendly English.")
+st.markdown("This tool helps Korean doctors communicate with foreign patients in patient-friendly English. \n 왼쪽 상단 >>을 클릭하세요.")
 
 # --- Author & Data Credit ---
 st.markdown("""
