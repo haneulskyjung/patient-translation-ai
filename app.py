@@ -70,30 +70,6 @@ if st.button("리포트 생성하기 🩺"):
         with st.spinner("생성중... ⏳"):
             try:
                 # --- AI Prompts ---
-                # translation_prompt = f"""Based on the following Korean doctor's note, provide a short, clear patient-friendly English for the foreign patient.
-                #                 Include explanations of medical terms, why each treatment is suggested, and practical daily tips.
-                #                 Include specific, actionable insights tailored to this patient’s conditions and lab values, 
-                #                 highlighting potential risks that are not immediately obvious.
-                #                 Keep it conversational and patient-focused.
-                #                 Patient note: {doctor_note_text}
-                #                 """ 
-                # edu_prompt = f"""Based on the following Korean doctor's note, provide a short patient education summary in clear patient-friendly English.
-                #                 Include:
-                #                 1. Specific risk factors related to the patient's conditions.
-                #                 2. Practical, actionable tips that the patient might not already know.
-                #                 3. Insights based on the patient’s age, lab results, or medications.
-                #                 4. Explanations of why certain treatments or lifestyle changes are recommended.
-                #                 Patient note: {doctor_note_text}
-                #                 """
-                # risk_summary_prompt = f"""Based on the following Korean doctor's note, generate below in English:
-
-                #                 1. A short patient-friendly summary highlighting the main health risks.
-                #                 2. A practical checklist of lifestyle or monitoring steps for the patient.
-
-                #                 Doctor's note:
-                #                 {doctor_note_text}
-                #                 """
-
                 enhanced_prompt = f"""Based on the following Korean doctor's note, provide a patient-friendly English explanation for the foreign patient.
                 
                                     Requirements:
@@ -102,8 +78,8 @@ if st.button("리포트 생성하기 🩺"):
                                     - Highlight potential risks related to the patient's conditions that are not immediately obvious.
                                     - Include practical, actionable daily tips and lifestyle guidance tailored to this patient's conditions, lab results, and age that the patient might not already know
                                     - Explanations of why certain treatments or lifestyle changes are recommended.
+                                    - Must reference public health data from WHO or CDC or open data once.
                                     - Keep the tone clear, concise, and patient-focused, suitable for direct display in a PDF.
-                                    - Reference public health data from WHO or CDC or open ddata where relevant
 
                                     Patient note: {doctor_note_text}
                                     """
@@ -115,30 +91,12 @@ if st.button("리포트 생성하기 🩺"):
                     progress.progress(i)
 
                 # --- OpenAI API calls ---
-                # translation = openai.chat.completions.create(
-                #     model="gpt-3.5-turbo",
-                #     messages=[{"role": "user", "content": translation_prompt}]
-                # ).choices[0].message.content.strip()
-
-                # awareness_text = openai.chat.completions.create(
-                #     model="gpt-3.5-turbo",
-                #     messages=[{"role": "user", "content": edu_prompt}]
-                # ).choices[0].message.content.strip()
-
-                # risk_summary_ai = openai.chat.completions.create(
-                #     model="gpt-3.5-turbo",
-                #     messages=[{"role": "user", "content": risk_summary_prompt}]
-                # ).choices[0].message.content.strip()
-
                 enhanced_ai = openai.chat.completions.create(
                     model="gpt-3.5-turbo",
                     messages=[{"role": "user", "content": enhanced_prompt}]
                 ).choices[0].message.content.strip()
 
                 # --- Sanitize AI outputs for Streamlit display ---
-                # translation_text_safe = sanitize_text(translation)
-                # awareness_text_safe = sanitize_text(awareness_text)
-                # risk_summary_safe = sanitize_text(risk_summary_ai)
                 enhanced_ai_safe = sanitize_text(enhanced_ai)
 
                 tab1, tab2 = st.tabs(["🇺🇸 English (Patient Version)", "🇰🇷 Korean (Doctor Version)"])
@@ -146,12 +104,7 @@ if st.button("리포트 생성하기 🩺"):
                 with tab1:
                     # --- Display Translations & Awareness ---
                     st.subheader("✅ Patient-Friendly Explanation")
-                    # st.write(translation_text_safe)
                     st.write(enhanced_ai_safe)
-                    # st.subheader("📖 Awareness & Education")
-                    # st.write(awareness_text_safe)
-                    # st.subheader("🩺 Summary & Checklist")
-                    # st.write(risk_summary_safe)
 
                     # --- PDF Export (same as before) ---
                     pdf = FPDF()
@@ -168,17 +121,7 @@ if st.button("리포트 생성하기 🩺"):
                     pdf.set_font("DejaVu", size=14, style="B")
                     pdf.cell(0, 10, "Patient-Friendly Translation", new_x=XPos.LMARGIN, new_y=YPos.NEXT, align="C")
                     pdf.set_font("DejaVu", size=12)
-                    pdf.multi_cell(0, 8, translation_text_safe)
-                    pdf.ln(4)
-                    pdf.set_font("DejaVu", size=14, style="B")
-                    pdf.cell(0, 10, "Awareness & Education", new_x=XPos.LMARGIN, new_y=YPos.NEXT, align="C")
-                    pdf.set_font("DejaVu", size=12)
-                    pdf.multi_cell(0, 8, awareness_text_safe)
-                    pdf.ln(4)
-                    pdf.set_font("DejaVu", size=14, style="B")
-                    pdf.cell(0, 10, "Patient Health Risk Summary", new_x=XPos.LMARGIN, new_y=YPos.NEXT, align="C")
-                    pdf.set_font("DejaVu", size=12)
-                    pdf.multi_cell(0, 8, risk_summary_safe)
+                    pdf.multi_cell(0, 8, enhanced_ai_safe)
                     pdf.ln(4)
 
                     pdf.set_font("DejaVu", size=10, style="I")
@@ -212,36 +155,18 @@ if st.button("리포트 생성하기 🩺"):
 
                 with tab2:
                     # Translate into Korean
-                    translation_kor_prompt = f"Translate the following doctor's note to Korean:\n\n{translation_text_safe}. aware that the patient is one person not people."
-                    translation_kor = openai.chat.completions.create(
+                    enhanced_ai_kor_prompt = f"Translate the following doctor's note to Korean:\n\n{enhanced_ai_safe}. aware that the patient is one person not people."
+                    enhanced_ai_kor = openai.chat.completions.create(
                         model="gpt-3.5-turbo",
-                        messages=[{"role": "user", "content": translation_kor_prompt}]
-                    ).choices[0].message.content.strip()
-
-                    kor_edu_prompt = f"Translate the following patient education summary to Korean:\n\n{awareness_text_safe}"
-                    kor_edu = openai.chat.completions.create(
-                        model="gpt-3.5-turbo",
-                        messages=[{"role": "user", "content": kor_edu_prompt}]
-                    ).choices[0].message.content.strip()
-                    
-                    kor_risk_prompt = f"Translate the following patient risk summary to Korean:\n\n{risk_summary_safe}"
-                    kor_risk = openai.chat.completions.create(
-                        model="gpt-3.5-turbo",
-                        messages=[{"role": "user", "content": kor_risk_prompt}]
+                        messages=[{"role": "user", "content": enhanced_ai_kor_prompt}]
                     ).choices[0].message.content.strip()
 
                     # --- Sanitize AI outputs for Streamlit display ---
-                    translation_kor_safe = sanitize_text(translation_kor)
-                    kor_edu_safe = sanitize_text(kor_edu)
-                    kor_risk_safe = sanitize_text(kor_risk)
+                    enhanced_ai_kor_safe = sanitize_text(enhanced_ai_kor)
 
                     # --- Display Translations & Awareness ---
                     st.subheader("✅ 환자 친화적 설명")
-                    st.write(translation_kor_safe)
-                    st.subheader("📖 환자 교육 및 정보")
-                    st.write(kor_edu_safe)
-                    st.subheader("🩺 건강 상태 요약 & 체크 리스트")
-                    st.write(kor_risk_safe)
+                    st.write(enhanced_ai_kor_safe)
 
                     # --- PDF Export (same as before) ---
                     pdf_kor = FPDF()
@@ -257,17 +182,7 @@ if st.button("리포트 생성하기 🩺"):
                     pdf_kor.set_font("NotoSansKR", size=14, style="B")
                     pdf_kor.cell(0, 10, "환자 친화적 설명", new_x=XPos.LMARGIN, new_y=YPos.NEXT, align="C")
                     pdf_kor.set_font("NotoSansKR", size=12)
-                    pdf_kor.multi_cell(0, 8, translation_kor_safe)
-                    pdf_kor.ln(4)
-                    pdf_kor.set_font("NotoSansKR", size=14, style="B")
-                    pdf_kor.cell(0, 10, "환자 교육 및 정보", new_x=XPos.LMARGIN, new_y=YPos.NEXT, align="C")
-                    pdf_kor.set_font("NotoSansKR", size=12)
-                    pdf_kor.multi_cell(0, 8, kor_edu_safe)
-                    pdf_kor.ln(4)
-                    pdf_kor.set_font("NotoSansKR", size=14, style="B")
-                    pdf_kor.cell(0, 10, "건강 상태 요약 & 체크 리스트", new_x=XPos.LMARGIN, new_y=YPos.NEXT, align="C")
-                    pdf_kor.set_font("NotoSansKR", size=12)
-                    pdf_kor.multi_cell(0, 8, kor_risk_safe)
+                    pdf_kor.multi_cell(0, 8, enhanced_ai_kor_safe)
                     pdf_kor.ln(4)
 
                     pdf_kor.set_font("NotoSansKR", size=10, style="I")
