@@ -13,9 +13,9 @@ load_dotenv()
 openai.api_key = os.getenv("OPENAI_API_KEY")
 
 # --- App UI ---
-st.set_page_config(page_title="AI Patient-Friendly Note Translator", layout="wide")
-st.title("🩺 AI Healthcare Translator")
-st.markdown("외국인 환자들과 소통하는 데에 도움을 주는 도구. \n\n 1. 왼쪽 상단 >> 을 클릭하세요. \n 2. 리포트 생성하기를 클릭하세요.")
+st.set_page_config(page_title="Patient-Friendly Note Translator AI", layout="wide")
+st.title("🩺 Patient-Friendly AI Translator")
+st.markdown("외국인 환자와의 원활한 소통을 지원하는 스마트 의료 도구 \n\n 1. 왼쪽 상단 >> 을 클릭하세요. \n 2. 의학/치의학을 선택하고 샘플 예시 메모를 선택하거나 직접 입력하세요. \n 3. 리포트 생성하기를 클릭하세요.")
 
 # --- Author & Data Credit ---
 st.markdown("""
@@ -25,9 +25,13 @@ Created by Ha-neul Jung | Data source: WHO, CDC, and publicly available medical 
 """, unsafe_allow_html=True)
 
 # --- Sidebar: Sample Notes & Settings ---
-st.sidebar.title("📝 환자 메모 입력 & 설정")
+st.sidebar.title("📝 환자 메모 입력")
 
-sample_notes = {
+# 분야 선택
+category = st.sidebar.radio("분야 선택", ["의학", "치의학"])
+
+# 샘플 노트 정의
+medical_samples = {
     "예시 메모 선택": "",
     "고혈압 & 고지혈증": "45세 남성, 고혈압(2기) 및 고지혈증 진단. 아토르바스타틴 20mg 처방 예정.",
     "당뇨병 & 비만": "52세 여성, 제2형 당뇨병 (HbA1C 8.2%), BMI 32. 메트포르민 복용 중, 생활습관 개선 권장.",
@@ -36,13 +40,26 @@ sample_notes = {
     "심부전 & 부정맥": "70세 남성, 심부전 EF 35%. 이뇨제 및 베타차단제 복용 중. 간헐적 심실 조기수축 관찰."
 }
 
+dental_samples = {
+    "예시 메모 선택": "",
+    "충치 및 치은염": "35세 남성, 어금니 충치 및 잇몸 염증. 복합 레진 충전 및 스케일링 권고.",
+    "사랑니 매복": "22세 환자, 하악 제3대구치 매복으로 경미한 통증. 발치 예정, 수술 후 관리 안내.",
+    "치아 민감증": "40세 여성, 차가운 음료 섭취 시 상악 전치 민감. 불소 도포 및 과도한 양치 압력 조절 권고.",
+    "치주질환 관리": "50세 남성, 치주낭 5mm 이상, 치석 다수 발견. 정기 스케일링 및 구강 위생 교육 권장.",
+    "보철물 교체": "60세 여성, 기존 브릿지 변색 및 부착 불량. 새 브릿지 제작 및 잇몸 상태 관리 안내."
+}
 
 # --- Dropdown to select sample ---
-note_choice = st.sidebar.selectbox("샘플 메모 선택:", options=list(sample_notes.keys()))
+if category == "의학":
+    note_choice = st.sidebar.selectbox("샘플 선택", list(medical_samples.keys()))
+    doctor_note_text = medical_samples[note_choice]
+else:
+    note_choice = st.sidebar.selectbox("샘플 선택", list(dental_samples.keys()))
+    doctor_note_text = dental_samples[note_choice]
 
 # --- Fill text area automatically ---
 if note_choice and note_choice != "예시 메모 선택":
-    doctor_note_text = st.sidebar.text_area("또는 의사 메모를 직접 입력하세요:", value=sample_notes[note_choice], height=300)
+    doctor_note_text = st.sidebar.text_area("또는 의사 메모를 직접 입력하세요:", value=doctor_note_text, height=300)
 else:
     doctor_note_text = st.sidebar.text_area("또는 의사 메모를 직접 입력하세요:", height=300)
 
@@ -74,26 +91,25 @@ if st.button("리포트 생성하기 🩺"):
                 
                                     Requirements:
                                     1. Present each point as a separate item for clarity.
-                                    2. Must reference public health data from WHO or CDC or open data once.
-                                    3. Explain medical terms in simple language. And it should be **5-7 sentences long** to provide sufficient detail., e.g.,
+                                    2. Explain medical terms in simple language. And it should be **5-7 sentences long** to provide sufficient detail., e.g.,
                                     - Instead of just "eGFR", write "eGFR (estimated Glomerular Filtration Rate), which indicates how well the kidneys are working".
-                                    4. Describe why each treatment or medication is suggested. And it should be **5-7 sentences long** to provide sufficient detail.
+                                    3. Describe why each treatment or medication is suggested. And it should be **5-7 sentences long** to provide sufficient detail.
                                     - The name of the drug.
                                     - A simple explanation of what it is for (e.g., "Amlodipine: helps lower blood pressure to reduce strain on the heart").
                                     - Potential side effects the patient should watch for.
-                                    5. Keep the tone concise, clear, and patient-focused, suitable for direct display in a PDF.
+                                    4. Keep the tone concise, clear, and patient-focused, suitable for direct display in a PDF.
 
                                     Patient note: {doctor_note_text}
                                     """
-                edu_eng_prompt = f"""Based on the following Korean doctor's note, provide a patient-friendly English explanation for the foreign patient in a **clear, bullet point list format**.
+                edu_eng_prompt = f"""Based on the following Korean doctor's note, provide a patient-friendly English potential risk, guidance for the foreign patient in a **clear, bullet point list format**.
+                                    Do not provide any explantion about doctor's note.
                 
                                     Requirements:
-                                    1. Present each point as a separate item for clarity.
-                                    2. reference public health data from WHO or CDC or open data once.
-                                    3. Highlight potential risks related to the patient's conditions that are not immediately obvious in **5-7 sentences long** to provide sufficient detail.
-                                    4. Include practical, actionable daily tips and lifestyle guidance tailored to this patient's conditions, lab results, and age that the patient might not already know **5-7 sentences long** to provide sufficient detail.
-                                    5. Explanations of why certain treatments or lifestyle changes are recommended **3-5 sentences long** to provide sufficient detail.
-                                    6. Keep the tone concise, clear, and patient-focused, suitable for direct display in a PDF.
+                                    1. Present each point as a separate item for clarity and must reference public health statistics data from WHO or CDC or open data. Reference FDI World Dental Federation if Doctor's Note related to dental.
+                                    2. Highlight potential risks related to the patient's conditions that are not immediately obvious in **5-7 sentences long** to provide sufficient detail.
+                                    3. Include practical, actionable daily diet tips and lifestyle guidance or work out routines tailored to this patient's conditions, lab results, and age that the patient might not already know **5-7 sentences long** to provide sufficient detail.
+                                    4. Explanations of why certain treatments or lifestyle changes are recommended **3-5 sentences long** to provide sufficient detail.
+                                    5. Keep the tone concise, clear, and patient-focused, suitable for direct display in a PDF.
 
                                     Patient note: {doctor_note_text}
                                     """
