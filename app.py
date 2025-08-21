@@ -13,14 +13,14 @@ load_dotenv()
 openai.api_key = os.getenv("OPENAI_API_KEY")
 
 # --- App UI ---
-st.set_page_config(page_title="Patient-Friendly Note Translator AI", layout="wide")
-st.title("🩺 Patient-Friendly AI Translator")
-st.markdown("외국인 환자와의 원활한 소통을 지원하는 스마트 의료 도구 \n\n 1. 왼쪽 상단 >> 을 클릭하세요. \n 2. 의학/치의학을 선택하고 샘플 예시 메모를 선택하거나 직접 입력하세요. \n 3. 리포트 생성하기를 클릭하세요.")
+st.set_page_config(page_title="Patient-Friendly AI Assistant", layout="wide")
+st.title("🩺 Patient-Friendly AI Assistant")
+st.markdown("내외국인 환자와의 원활한 소통을 지원하는 스마트 의료 도구 \n\n 1. 왼쪽 상단 >> 을 클릭하세요. \n 2. 의학/치의학을 선택하고 샘플 예시 메모를 선택하거나 직접 입력하세요. \n 3. 리포트 생성하기를 클릭하세요.")
 
 # --- Author & Data Credit ---
 st.markdown("""
 <p style='text-align:right; color: gray; font-size:12px;'>
-Created by Ha-neul Jung | Data source: WHO, CDC, and publicly available medical datasets
+Created by Ha-neul Jung | Data source: WHO, CDC, FDI and publicly available medical datasets
 </p>
 """, unsafe_allow_html=True)
 
@@ -135,7 +135,7 @@ if st.button("리포트 생성하기 🩺"):
                 translation_eng_safe = sanitize_text(translation_eng)
                 edu_eng_safe = sanitize_text(edu_eng)
 
-                tab1, tab2 = st.tabs(["🇺🇸 English (Patient Version)", "🇰🇷 Korean (Doctor Version)"])
+                tab1, tab2 = st.tabs(["🇺🇸 English", "🇰🇷 Korean"])
 
                 with tab1:
                     # --- Display Translations & Awareness ---
@@ -255,6 +255,21 @@ if st.button("리포트 생성하기 🩺"):
                     pdf_kor.output(pdf_file_kor)
                     with open(pdf_file_kor, "rb") as f:
                         st.download_button("⬇️ Download Full Report (PDF)", f, file_name="patient_report_kor.pdf")
+
+                    # --- Follow-up Q&A ---
+                    st.subheader("💬 궁금한 사항을 더 물어보세요")
+                    user_q = st.text_input("질문을 입력해 주세요:")
+                    if st.button("AI에게 물어보기"):
+                        if user_q.strip():
+                            q_response = openai.chat.completions.create(
+                                model="gpt-3.5-turbo",
+                                messages=[
+                                    {"role": "system", "content": "You are a helpful medical explainer for patients."},
+                                    {"role": "user", "content": f"Doctor's note: {doctor_note_text}"},
+                                    {"role": "user", "content": f"Patient question: {user_q}"}
+                                ]
+                            )
+                            st.info(sanitize_text(q_response.choices[0].message.content.strip()))
 
             except Exception as e:
                 st.error(f"Error: {e}")
