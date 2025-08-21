@@ -20,7 +20,8 @@ st.markdown("내외국인 환자와의 원활한 소통을 지원하는 스마�
 # --- Author & Data Credit ---
 st.markdown("""
 <p style='text-align:right; color: gray; font-size:12px;'>
-Created by Ha-neul Jung | Data source: WHO, CDC, FDI and publicly available medical datasets
+Created by Ha-neul Jung | Data sources: World Health Organization(WHO), Centers for Disease Control and Prevention(CDC),<br>
+World Dental Federation(FDI) and publicly available medical datasets
 </p>
 """, unsafe_allow_html=True)
 
@@ -105,7 +106,7 @@ if st.button("리포트 생성하기 🩺"):
                                     Do not provide any explantion about doctor's note.
                 
                                     Requirements:
-                                    1. Present each point as a separate item for clarity and must reference public health statistics data from WHO or CDC or open data. Reference FDI World Dental Federation if Doctor's Note related to dental.
+                                    1. Present each point as a separate item for clarity and must reference and cite public health statistics data from WHO or CDC or open data. Reference FDI World Dental Federation if Doctor's Note related to dental.
                                     2. Highlight potential risks related to the patient's conditions that are not immediately obvious in **5-7 sentences long** to provide sufficient detail.
                                     3. Include practical, actionable daily diet tips and lifestyle guidance or work out routines tailored to this patient's conditions, lab results, and age that the patient might not already know **5-7 sentences long** to provide sufficient detail.
                                     4. Explanations of why certain treatments or lifestyle changes are recommended **3-5 sentences long** to provide sufficient detail.
@@ -139,6 +140,11 @@ if st.button("리포트 생성하기 🩺"):
 
                 with tab1:
                     # --- Display Translations & Awareness ---
+                    st.markdown("""
+                                <p style='text-align:center; color: gray; font-size:14px;'>
+                                Disclaimer: This report is for educational purposes only and not a substitute for professional medical advice.
+                                </p>
+                                """, unsafe_allow_html=True)   
                     st.subheader("✅ Patient-Friendly Explanation")
                     st.write(translation_eng_safe)
                     st.subheader("📖 Awareness & Education")
@@ -174,7 +180,7 @@ if st.button("리포트 생성하기 🩺"):
                     pdf.set_font("DejaVu", size=10, style="I")
                     pdf.set_text_color(120, 120, 120)
                     page_width = pdf.w - 2 * pdf.l_margin  # page width minus left/right margins
-                    pdf.multi_cell(page_width, 6, "Created by Ha-neul Jung | Data source: WHO, CDC, publicly available datasets", align="R")
+                    pdf.multi_cell(page_width, 6, "Created by Ha-neul Jung | Data sources: World Health Organization(WHO), Centers for Disease Control and Prevention(CDC), World Dental Federation(FDI) and publicly available medical datasets", align="R")
                     
                     pdf_file = "translation_report.pdf"
                     pdf.output(pdf_file)
@@ -198,13 +204,18 @@ if st.button("리포트 생성하기 🩺"):
 
                 with tab2:
                     # Translate into Korean
-                    translation_kor_prompt = f"Translate the following doctor's note to Korean:\n\n{translation_eng_safe}. aware that the patient is one person not people. And the response format must follow the english format"
+                    translation_kor_prompt = f"""Translate the following doctor's note to Korean:\n\n{translation_eng_safe}.
+                                                 Aware that the patient is one person not people, so avoid using '여러분'.
+                                                 And the response format must follow the english format."""
                     translation_kor = openai.chat.completions.create(
                         model="gpt-3.5-turbo",
                         messages=[{"role": "user", "content": translation_kor_prompt}]
                     ).choices[0].message.content.strip()
 
-                    edu_kor_prompt = f"Translate the following doctor's note to Korean:\n\n{edu_eng_safe}. aware that the patient is one person not people. And the response format must follow the english format"
+                    edu_kor_prompt = f"""Translate the following doctor's note to Korean:\n\n{edu_eng_safe}.
+                                         Aware that the patient is one person not people, so avoid using '여러분'.
+                                         And the response format must follow the english format.
+                                         Translate CDC into 미국질병통제예방센터(CDC), WHO into 세계보건기구(WHO), FDI into 세계치과의사연맹(FDI) if it's mentioned in the note."""
                     edu_kor = openai.chat.completions.create(
                         model="gpt-3.5-turbo",
                         messages=[{"role": "user", "content": edu_kor_prompt}]
@@ -215,6 +226,11 @@ if st.button("리포트 생성하기 🩺"):
                     edu_kor_safe = sanitize_text(edu_kor)
 
                     # --- Display Translations & Awareness ---
+                    st.markdown("""
+                                <p style='text-align:center; color: gray; font-size:14px;'>
+                                면책 조항: 이 보고서는 전문적인 의학적 조언을 대신하는 것이 아니라 교육 목적으로만 작성되었습니다.
+                                </p>
+                                """, unsafe_allow_html=True)   
                     st.subheader("✅ 환자 친화적 설명")
                     st.write(translation_kor_safe)
                     st.subheader("📖 환자 교육 및 정보")
@@ -249,7 +265,7 @@ if st.button("리포트 생성하기 🩺"):
                     pdf_kor.set_font("NotoSansKR", size=10, style="I")
                     pdf_kor.set_text_color(120, 120, 120)
                     page_width = pdf_kor.w - 2 * pdf_kor.l_margin  # page width minus left/right margins
-                    pdf_kor.multi_cell(page_width, 6, "정하늘 작성 | 데이터 출처: WHO, CDC, 공개 데이터셋", align="R")
+                    pdf_kor.multi_cell(page_width, 6, "정하늘 작성 | 데이터 출처: 세계보건기구(WHO), 미국질병통제예방센터(CDC), 세계치과의사연맹(FDI)과 공개 의료 데이터셋", align="R")
 
                     pdf_file_kor = "translation_report_kor.pdf"
                     pdf_kor.output(pdf_file_kor)
