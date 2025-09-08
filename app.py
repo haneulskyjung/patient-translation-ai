@@ -15,13 +15,13 @@ openai.api_key = os.getenv("OPENAI_API_KEY")
 # --- App UI ---
 st.set_page_config(page_title="Patient-Friendly AI Assistant", layout="wide")
 st.title("🩺 Patient-Friendly AI Assistant")
-st.markdown("내외국인 환자와의 원활한 소통을 지원하는 스마트 의료 도구 \n\n 1. 왼쪽 상단 >> 을 클릭하세요. \n 2. 의학/치의학을 선택하고 샘플 예시 메모를 선택하거나 직접 입력하세요. \n 3. 리포트 생성하기를 클릭하세요.")
+st.markdown("내외국인 환자와의 원활한 소통을 지원하는 스마트 의료 도구 \n\n 1. 왼쪽 상단 >> 을 클릭하세요. \n 2. 샘플 예시 메모를 선택하거나 직접 입력하세요. \n 3. 리포트 생성하기를 클릭하세요.")
 
 # --- Author & Data Credit ---
 st.markdown("""
 <p style='text-align:right; color: gray; font-size:12px;'>
 Created by Ha-neul Jung | Data sources: World Health Organization(WHO), Centers for Disease Control and Prevention(CDC),<br>
-World Dental Federation(FDI) and publicly available medical datasets
+and publicly available medical datasets
 </p>
 """, unsafe_allow_html=True)
 
@@ -29,7 +29,7 @@ World Dental Federation(FDI) and publicly available medical datasets
 st.sidebar.title("📝 환자 메모 입력")
 
 # 분야 선택
-category = st.sidebar.radio("분야 선택", ["의학", "치의학"])
+# category = st.sidebar.radio("분야 선택", ["의학", "치의학"])
 
 # 샘플 노트 정의
 medical_samples = {
@@ -41,22 +41,24 @@ medical_samples = {
     "심부전 & 부정맥": "70세 남성, 심부전 EF 35%. 이뇨제 및 베타차단제 복용 중. 간헐적 심실 조기수축 관찰."
 }
 
-dental_samples = {
-    "예시 메모 선택": "",
-    "충치 및 치은염": "35세 남성, 어금니 충치 및 잇몸 염증. 복합 레진 충전 및 스케일링 권고.",
-    "사랑니 매복": "22세 환자, 하악 제3대구치 매복으로 경미한 통증. 발치 예정, 수술 후 관리 안내.",
-    "치아 민감증": "40세 여성, 차가운 음료 섭취 시 상악 전치 민감. 불소 도포 및 과도한 양치 압력 조절 권고.",
-    "치주질환 관리": "50세 남성, 치주낭 5mm 이상, 치석 다수 발견. 정기 스케일링 및 구강 위생 교육 권장.",
-    "보철물 교체": "60세 여성, 기존 브릿지 변색 및 부착 불량. 새 브릿지 제작 및 잇몸 상태 관리 안내."
-}
+# dental_samples = {
+#     "예시 메모 선택": "",
+#     "충치 및 치은염": "35세 남성, 어금니 충치 및 잇몸 염증. 복합 레진 충전 및 스케일링 권고.",
+#     "사랑니 매복": "22세 환자, 하악 제3대구치 매복으로 경미한 통증. 발치 예정, 수술 후 관리 안내.",
+#     "치아 민감증": "40세 여성, 차가운 음료 섭취 시 상악 전치 민감. 불소 도포 및 과도한 양치 압력 조절 권고.",
+#     "치주질환 관리": "50세 남성, 치주낭 5mm 이상, 치석 다수 발견. 정기 스케일링 및 구강 위생 교육 권장.",
+#     "보철물 교체": "60세 여성, 기존 브릿지 변색 및 부착 불량. 새 브릿지 제작 및 잇몸 상태 관리 안내."
+# }
 
 # --- Dropdown to select sample ---
-if category == "의학":
-    note_choice = st.sidebar.selectbox("샘플 선택", list(medical_samples.keys()))
-    doctor_note_text = medical_samples[note_choice]
-else:
-    note_choice = st.sidebar.selectbox("샘플 선택", list(dental_samples.keys()))
-    doctor_note_text = dental_samples[note_choice]
+# if category == "의학":
+#     note_choice = st.sidebar.selectbox("샘플 선택", list(medical_samples.keys()))
+#     doctor_note_text = medical_samples[note_choice]
+# else:
+#     note_choice = st.sidebar.selectbox("샘플 선택", list(dental_samples.keys()))
+#     doctor_note_text = dental_samples[note_choice]
+note_choice = st.sidebar.selectbox("샘플 선택", list(medical_samples.keys()))
+doctor_note_text = medical_samples[note_choice]
 
 # --- Fill text area automatically ---
 if note_choice and note_choice != "예시 메모 선택":
