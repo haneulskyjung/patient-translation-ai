@@ -20,8 +20,8 @@ st.markdown("내외국인 환자와의 원활한 소통을 지원하는 스마�
 # --- Author & Data Credit ---
 st.markdown("""
 <p style='text-align:right; color: gray; font-size:12px;'>
-Created by Ha-neul Jung | Data sources: World Health Organization(WHO), Centers for Disease Control and Prevention(CDC),<br>
-and publicly available medical datasets
+Created by Ha-neul Jung | Data sources: World Health Organization(WHO),
+Centers for Disease Control and Prevention(CDC), and publicly available medical datasets
 </p>
 """, unsafe_allow_html=True)
 
