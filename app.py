@@ -7,6 +7,7 @@ import matplotlib.pyplot as plt
 from io import BytesIO
 from dotenv import load_dotenv
 import time
+import base64
 
 # --- Load API Key ---
 load_dotenv()
@@ -16,6 +17,18 @@ openai.api_key = os.getenv("OPENAI_API_KEY")
 st.set_page_config(page_title="Patient-Friendly AI Assistant", layout="wide")
 st.title("🩺 Patient-Friendly AI Assistant")
 st.markdown("내외국인 환자와의 원활한 소통을 지원하는 스마트 의료 도구 \n\n 1. 왼쪽 상단 >> 을 클릭하세요. \n 2. 샘플 예시 메모를 선택하거나 직접 입력하세요. \n 3. 리포트 생성하기를 클릭하세요.")
+
+pdf_file = "project_report.pdf"
+
+with open(pdf_file, "rb") as f:
+    pdf_bytes = f.read()
+
+st.download_button(
+    label="📄 리포트 다운로드",
+    data=pdf_bytes,
+    file_name="project_report.pdf",
+    mime="application/pdf"
+)
 
 # --- Author & Data Credit ---
 st.markdown("""
