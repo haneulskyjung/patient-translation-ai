@@ -16,19 +16,35 @@ openai.api_key = os.getenv("OPENAI_API_KEY")
 # --- App UI ---
 st.set_page_config(page_title="Patient-Friendly AI Assistant", layout="wide")
 st.title("🩺 Patient-Friendly AI Assistant")
-st.markdown("내외국인 환자와의 원활한 소통을 지원하는 스마트 의료 도구 \n\n 1. 왼쪽 상단 >> 을 클릭하세요. \n 2. 샘플 예시 메모를 선택하거나 직접 입력하세요. \n 3. 리포트 생성하기를 클릭하세요.")
 
 pdf_file = "project_report.pdf"
 
+# PDF 읽기
 with open(pdf_file, "rb") as f:
     pdf_bytes = f.read()
 
-st.download_button(
-    label="📄 리포트 다운로드",
-    data=pdf_bytes,
-    file_name="project_report.pdf",
-    mime="application/pdf"
-)
+# base64 인코딩 (브라우저에서 다운로드 가능하게)
+b64_pdf = base64.b64encode(pdf_bytes).decode()
+
+# 오른쪽 끝 정렬, 작은 글씨, 색상 버튼
+st.markdown(f"""
+    <div style="text-align: right; margin-top: 10px;">
+        <a href="data:application/pdf;base64,{b64_pdf}" download="project_report.pdf">
+            <button style="
+                background-color:#FF5733; 
+                color:white; 
+                padding:0.3em 0.8em; 
+                border:none; 
+                border-radius:5px; 
+                cursor:pointer; 
+                font-size:12px;">
+                📄 프로젝트 요약 보고서 다운로드해서 읽기
+            </button>
+        </a>
+    </div>
+""", unsafe_allow_html=True)
+
+st.markdown("내외국인 환자와의 원활한 소통을 지원하는 스마트 의료 도구 \n\n 1. 왼쪽 상단 >> 을 클릭하세요. \n 2. 샘플 예시 메모를 선택하거나 직접 입력하세요. \n 3. 리포트 생성하기를 클릭하세요.")
 
 # --- Author & Data Credit ---
 st.markdown("""
