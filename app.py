@@ -18,14 +18,11 @@ st.set_page_config(page_title="Patient-Friendly AI Assistant", layout="wide")
 st.title("🩺 Patient-Friendly AI Assistant")
 
 pdf_file = "project_report.pdf"
-
 # PDF 읽기
 with open(pdf_file, "rb") as f:
     pdf_bytes = f.read()
-
 # base64 인코딩 (브라우저에서 다운로드 가능하게)
 b64_pdf = base64.b64encode(pdf_bytes).decode()
-
 # 오른쪽 끝 정렬, 작은 글씨, 색상 버튼
 st.markdown(f"""
     <div style="text-align: right; margin-top: 10px;">
